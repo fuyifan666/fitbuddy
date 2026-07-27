@@ -1,0 +1,56 @@
+{
+  "name": "FitBuddy · 减脂工作台",
+  "short_name": "FitBuddy",
+  "description": "减脂工作台：待办打卡、训练计划、饮食记录与卡路里、热量缺口计算",
+  "start_url": "./fitbuddy.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "zh-CN",
+  "categories": ["health", "fitness", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "新建待办",
+      "short_name": "待办",
+      "description": "快速创建今日待办",
+      "url": "./fitbuddy.html#todo",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "记录饮食",
+      "short_name": "饮食",
+      "description": "添加食物记录",
+      "url": "./fitbuddy.html#diet",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "查看缺口",
+      "short_name": "缺口",
+      "description": "查看今日热量缺口",
+      "url": "./fitbuddy.html#cal",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
