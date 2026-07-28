@@ -245,6 +245,28 @@ body{
 .notif-btn.enabled{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--primary)}
 .notif-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .notif-btn:active{transform:scale(.95)}
+/* ===== Buddy Page ===== */
+.buddy-section{margin-bottom:16px}
+.buddy-section-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.buddy-item{display:flex;align-items:flex-start;gap:10px;padding:12px;background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:8px;border-left:3px solid var(--primary)}
+.buddy-item.todo{border-left-color:var(--blue)}
+.buddy-item.train{border-left-color:var(--purple)}
+.buddy-item.diet{border-left-color:var(--accent)}
+.buddy-item.think{border-left-color:var(--pink)}
+.buddy-item-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.buddy-item-text{flex:1;font-size:14px;line-height:1.6}
+.buddy-item-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:4px;display:inline-block}
+.buddy-actions{display:flex;gap:8px;margin-top:4px}
+.buddy-actions button{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--text);cursor:pointer}
+.buddy-actions button:active{transform:scale(.95)}
+.review-block{padding:14px;background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:10px}
+.review-block-title{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.review-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+.review-stat:last-child{border-bottom:none}
+.review-stat .rs-val{font-weight:700}
+.history-item{padding:12px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.history-item-date{font-size:11px;color:var(--text3);margin-bottom:4px}
+.history-item-preview{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -404,6 +426,48 @@ body{
       </div>
     </div>
 
+    <!-- ============ PAGE: BUDDY ============ -->
+    <div class="page" id="page-buddy">
+      <div class="page-header">
+        <div class="page-title">伙伴</div>
+        <div class="page-sub">告诉它你的想法，它帮你做计划、做复盘</div>
+      </div>
+
+      <!-- 输入区 -->
+      <div class="card">
+        <div class="card-title"><span>📝 告诉伙伴</span></div>
+        <textarea class="textarea" id="buddy-input" placeholder="随便写——今天的计划、脑中的想法、要做的事、遇到的困惑...&#10;&#10;例如：&#10;明天要开会汇报，有点紧张&#10;想这周减1斤，但下午总想吃零食&#10;买了鸡胸肉但不会做&#10;感觉最近训练没动力" rows="6" style="resize:vertical;min-height:120px"></textarea>
+        <button class="btn btn-primary btn-block" style="margin-top:12px" onclick="buddyAnalyze()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="margin-right:4px"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          帮我分析整理
+        </button>
+      </div>
+
+      <!-- 分析结果 -->
+      <div id="buddy-result" style="display:none">
+        <!-- 智能解析结果会动态填充 -->
+      </div>
+
+      <!-- 今日复盘 -->
+      <div class="card" id="buddy-review-card">
+        <div class="card-title">
+          <span>📊 今日复盘</span>
+          <button class="btn btn-ghost btn-sm" onclick="generateReview()">生成复盘</button>
+        </div>
+        <div id="buddy-review" style="font-size:14px;line-height:1.8">
+          <div style="color:var(--text3);text-align:center;padding:20px 0">点击"生成复盘"，根据今天的数据总结</div>
+        </div>
+      </div>
+
+      <!-- 历史记录 -->
+      <div class="card">
+        <div class="card-title"><span>📖 历史记录</span></div>
+        <div id="buddy-history" style="max-height:300px;overflow-y:auto">
+          <div style="color:var(--text3);text-align:center;padding:20px 0">还没有记录</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /view-area -->
 
   <!-- ===== FAB ===== -->
@@ -426,6 +490,10 @@ body{
     <div class="nav-item" data-page="cal">
       <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
       <span>缺口</span>
+    </div>
+    <div class="nav-item" data-page="buddy">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      <span>伙伴</span>
     </div>
   </div>
 </div>
@@ -543,6 +611,7 @@ function switchPage(page) {
   if (page === 'train') renderTrain();
   if (page === 'diet') renderDiet();
   if (page === 'cal') renderCalorie();
+  if (page === 'buddy') renderBuddy();
 }
 
 // ===== FAB =====
@@ -1588,6 +1657,399 @@ function showInstallHint() {
 
 // Start
 init();
+
+/* ================================================================
+   BUDDY MODULE - 想法记录 + 智能规划 + 每日复盘
+================================================================ */
+
+// 关键词分类规则
+const BUDDY_RULES = {
+  train: {
+    icon: '💪', label: '训练', color: 'var(--purple)',
+    keywords: ['跑步','跑','俯卧撑','深蹲','训练','健身','运动','锻炼','拉伸','瑜伽','游泳','骑车','引体','卧推','哑铃','燃脂','有氧','无氧','hiit','波比','开合跳','高抬腿','练','肌肉','腹肌','胸','背','腿','肩','手臂','核心','卡路里消耗'],
+  },
+  diet: {
+    icon: '🍽', label: '饮食', color: 'var(--accent)',
+    keywords: ['吃','喝','餐','饭','鸡胸','牛肉','鸡蛋','蔬菜','水果','米饭','面条','燕麦','蛋白粉','零食','奶茶','热量','卡路里','蛋白质','碳水','脂肪','减肥餐','轻食','节食','断食','暴食','嘴馋','馋','饿','饱','做饭','煮','炒','烤','食谱','鸡胸肉','西兰花','香蕉','苹果','牛奶','豆浆'],
+  },
+  think: {
+    icon: '💭', label: '想法/情绪', color: 'var(--pink)',
+    keywords: ['感觉','觉得','想','心情','开心','难过','焦虑','紧张','压力','累','困','烦','纠结','犹豫','担心','害怕','期待','失望','沮丧','动力','没劲','想放弃','坚持','为什么','怎么办','迷茫','无聊','孤独','emo','崩溃','心态'],
+  },
+};
+
+// 时间识别
+const TIME_PATTERNS = [
+  { re: /今早|早上|早晨|上午/, time: '上午', hour: 9 },
+  { re: /中午|午饭|午餐/, time: '中午', hour: 12 },
+  { re: /下午|午后/, time: '下午', hour: 14 },
+  { re: /傍晚|晚饭|晚餐|晚上|今晚/, time: '晚上', hour: 19 },
+  { re: /睡前|夜里|深夜/, time: '睡前', hour: 22 },
+  { re: /明天|明早|明天早上/, time: '明天', hour: 9 },
+  { re: /这周|本周|这周内/, time: '本周', hour: 0 },
+];
+
+function getBuddyLogs() { return DB.get('buddy_logs', {}); }
+function saveBuddyLog(date, log) {
+  const logs = getBuddyLogs();
+  logs[date] = log;
+  DB.set('buddy_logs', logs);
+}
+
+function buddyAnalyze() {
+  const input = document.getElementById('buddy-input').value.trim();
+  if (!input) { toast('请先写点什么'); return; }
+
+  // 按行分割，每行作为一个"想法"
+  const lines = input.split('\n').map(l => l.trim()).filter(l => l);
+  const items = [];
+
+  lines.forEach(line => {
+    const classified = classifyText(line);
+    items.push({
+      id: uid(),
+      text: line,
+      type: classified.type,
+      icon: classified.icon,
+      label: classified.label,
+      color: classified.color,
+      time: classified.time,
+      priority: classified.priority,
+    });
+  });
+
+  // 保存到今天
+  const today = todayKey();
+  const log = getBuddyLogs()[today] || { inputs: [], plan: [], review: null };
+  log.inputs = log.inputs || [];
+  log.inputs.push({ raw: input, items, time: new Date().toISOString() });
+  saveBuddyLog(today, log);
+
+  // 渲染结果
+  renderBuddyResult(items);
+  renderBuddyHistory();
+  toast('已分析整理 ✓');
+}
+
+function classifyText(text) {
+  const lower = text.toLowerCase();
+  let type = 'todo';
+  let icon = '✅';
+  let label = '待办';
+  let color = 'var(--blue)';
+  let priority = 'normal';
+  let time = null;
+
+  // 检测类型
+  let maxScore = 0;
+  for (const [key, rule] of Object.entries(BUDDY_RULES)) {
+    let score = 0;
+    rule.keywords.forEach(kw => {
+      if (lower.includes(kw)) score++;
+    });
+    if (score > maxScore) {
+      maxScore = score;
+      type = key;
+      icon = rule.icon;
+      label = rule.label;
+      color = rule.color;
+    }
+  }
+
+  // 如果没有匹配到任何分类，且有动词，归为待办
+  if (maxScore === 0) {
+    type = 'todo';
+    icon = '✅';
+    label = '待办';
+    color = 'var(--blue)';
+  }
+
+  // 检测时间
+  for (const p of TIME_PATTERNS) {
+    if (p.re.test(text)) { time = p.time; break; }
+  }
+
+  // 检测优先级
+  if (/必须|一定要|马上|紧急|重要|赶紧|立刻|deadline|截止|来不及/.test(text)) {
+    priority = 'high';
+  } else if (/有空|再说|可能|也许|看看|尽量|试着/.test(text)) {
+    priority = 'low';
+  }
+
+  return { type, icon, label, color, time, priority };
+}
+
+function renderBuddyResult(items) {
+  const el = document.getElementById('buddy-result');
+  el.style.display = 'block';
+
+  // 按类型分组
+  const groups = {};
+  items.forEach(item => {
+    if (!groups[item.type]) groups[item.type] = [];
+    groups[item.type].push(item);
+  });
+
+  let html = '<div class="card"><div class="card-title"><span>🤖 整理结果</span></div>';
+
+  // 分类展示
+  for (const [type, groupItems] of Object.entries(groups)) {
+    const rule = BUDDY_RULES[type] || { icon: '✅', label: '待办', color: 'var(--blue)' };
+    html += `<div class="buddy-section">`;
+    html += `<div class="buddy-section-title">${rule.icon} ${rule.label}（${groupItems.length}）</div>`;
+    groupItems.forEach(item => {
+      const priorityTag = item.priority === 'high' ? '<span class="buddy-item-tag" style="background:rgba(239,68,68,.15);color:var(--danger)">高优先</span>' :
+                          item.priority === 'low' ? '<span class="buddy-item-tag" style="background:rgba(100,116,139,.15);color:var(--text3)">低优先</span>' :
+                          '';
+      const timeTag = item.time ? `<span class="buddy-item-tag" style="background:rgba(59,130,246,.15);color:var(--blue)">⏰ ${item.time}</span>` : '';
+      html += `<div class="buddy-item ${item.type}">
+        <div class="buddy-item-icon">${item.icon}</div>
+        <div class="buddy-item-text">
+          ${escHtml(item.text)}
+          <div>${priorityTag}${timeTag}</div>
+          <div class="buddy-actions">
+            ${item.type === 'todo' ? `<button onclick="addToTodoFromBuddy('${item.id}')">➕ 加入待办</button>` : ''}
+            ${item.type === 'train' ? `<button onclick="addToTodoFromBuddy('${item.id}','训练')">➕ 加入待办</button>` : ''}
+            ${item.type === 'diet' ? `<button onclick="addToDietReminder('${item.id}')">🔔 饮食提醒</button>` : ''}
+            ${item.type === 'think' ? `<button onclick="saveThought('${item.id}')">💾 记下想法</button>` : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // 智能建议
+  html += `<div class="buddy-section"><div class="buddy-section-title">💡 建议</div>`;
+  html += `<div style="padding:14px;background:rgba(34,197,94,.06);border-radius:12px;font-size:13px;line-height:1.8;color:var(--text2)">`;
+  html += generateSuggestions(items);
+  html += `</div></div>`;
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function generateSuggestions(items) {
+  const suggestions = [];
+  const types = items.map(i => i.type);
+  const hasTrain = types.includes('train');
+  const hasDiet = types.includes('diet');
+  const hasThink = types.includes('think');
+  const highPriority = items.filter(i => i.priority === 'high');
+
+  if (highPriority.length > 0) {
+    suggestions.push(`📌 你有 <b>${highPriority.length}件高优先事项</b>，建议优先处理：${highPriority.map(i => '「'+i.text.slice(0,15)+'」').join('、')}`);
+  }
+
+  if (hasTrain && hasDiet) {
+    suggestions.push('💪 你提到了训练和饮食——减脂的黄金组合。建议训练后30分钟内补充蛋白质，效果更好。');
+  }
+
+  if (hasThink) {
+    const thinkItems = items.filter(i => i.type === 'think');
+    suggestions.push(`💭 捕捉到了 <b>${thinkItems.length}个想法/情绪</b>。写下来本身就是一种释放，不用急着解决，先看见它。`);
+  }
+
+  if (hasTrain && !hasDiet) {
+    suggestions.push('🍽 训练计划不错，别忘了搭配饮食记录——三分练七分吃。');
+  }
+
+  if (hasDiet && !hasTrain) {
+    suggestions.push('🏃 饮食很关键，搭配今天的热量缺口看效果会更直观。有精力的话加个20分钟散步？');
+  }
+
+  const todoItems = items.filter(i => i.type === 'todo');
+  if (todoItems.length > 3) {
+    suggestions.push(`📋 今天待办较多（${todoItems.length}项），建议挑出最重要的3件先做，其余有空再做。`);
+  }
+
+  if (suggestions.length === 0) {
+    suggestions.push('✨ 继续保持记录的习惯，觉察是改变的第一步。');
+  }
+
+  return suggestions.map(s => `<div style="margin-bottom:8px">${s}</div>`).join('');
+}
+
+function addToTodoFromBuddy(itemId, prefix) {
+  const today = todayKey();
+  const log = getBuddyLogs()[today];
+  if (!log || !log.inputs) return;
+  let item = null;
+  for (const inp of log.inputs) {
+    item = inp.items.find(i => i.id === itemId);
+    if (item) break;
+  }
+  if (!item) return;
+  const text = prefix ? `[${prefix}] ${item.text}` : item.text;
+  const todos = getAllTodos();
+  todos.push({ id: uid(), text, done: false, createdDate: today, doneDate: null });
+  DB.set('todos', todos);
+  toast('已加入待办 ✓');
+}
+
+function addToDietReminder(itemId) {
+  toast('已记下，记得去饮食页记录 🍽');
+}
+
+function saveThought(itemId) {
+  toast('想法已保存 💾');
+}
+
+function generateReview() {
+  const today = todayKey();
+  const todos = getAllTodos().filter(t => t.createdDate === today);
+  const todoDone = todos.filter(t => t.done).length;
+  const trainRecords = getTrainRecords();
+  const jsDay = new Date().getDay();
+  const weekDay = jsDay === 0 ? 7 : jsDay;
+  const plan = getPlan();
+  const todayPlan = plan.find(d => d.day === weekDay);
+  const dk = `day_${weekDay}_${today}`;
+  const trainRec = trainRecords[dk] || {};
+  const trainDone = todayPlan ? todayPlan.exercises.filter((_, i) => trainRec[i]).length : 0;
+  const trainTotal = todayPlan ? todayPlan.exercises.length : 0;
+
+  const log = getDietLog(today);
+  let dietCal = 0;
+  MEALS.forEach(m => (log[m.key]||[]).forEach(f => dietCal += f.cal));
+  const settings = getSettings();
+
+  const buddyLog = getBuddyLogs()[today] || { inputs: [] };
+  const thoughtCount = buddyLog.inputs ? buddyLog.inputs.reduce((s, i) => s + i.items.length, 0) : 0;
+
+  // 计算评分
+  let score = 0;
+  if (todos.length > 0) score += (todoDone / todos.length) * 30;
+  if (trainTotal > 0) score += (trainDone / trainTotal) * 30;
+  if (dietCal > 0 && dietCal <= settings.dailyGoal) score += 20;
+  else if (dietCal > 0) score += 10;
+  if (thoughtCount > 0) score += 20;
+  score = Math.round(score);
+
+  let grade = 'D';
+  let gradeColor = 'var(--danger)';
+  if (score >= 80) { grade = 'A'; gradeColor = 'var(--primary)'; }
+  else if (score >= 60) { grade = 'B'; gradeColor = 'var(--blue)'; }
+  else if (score >= 40) { grade = 'C'; gradeColor = 'var(--accent)'; }
+
+  let html = '';
+
+  // 评分
+  html += `<div class="review-block" style="text-align:center">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">今日综合评分</div>
+    <div style="font-size:48px;font-weight:800;color:${gradeColor}">${score}<span style="font-size:20px;color:var(--text3)">分</span></div>
+    <div style="font-size:20px;font-weight:700;color:${gradeColor};margin-top:4px">${grade} 级</div>
+  </div>`;
+
+  // 待办完成
+  html += `<div class="review-block">
+    <div class="review-block-title">✅ 待办完成</div>
+    <div class="review-stat"><span>今日待办</span><span class="rs-val">${todos.length} 项</span></div>
+    <div class="review-stat"><span>已完成</span><span class="rs-val" style="color:var(--primary)">${todoDone} 项</span></div>
+    <div class="review-stat"><span>完成率</span><span class="rs-val">${todos.length > 0 ? Math.round(todoDone/todos.length*100) : 0}%</span></div>
+    ${todoDone < todos.length ? `<div style="font-size:12px;color:var(--text2);margin-top:8px">未完成：${todos.filter(t=>!t.done).map(t=>'「'+t.text.slice(0,12)+'」').join('、')}</div>` : '<div style="font-size:12px;color:var(--primary);margin-top:8px">🎉 全部完成！</div>'}
+  </div>`;
+
+  // 训练
+  html += `<div class="review-block">
+    <div class="review-block-title">💪 训练</div>
+    <div class="review-stat"><span>今日计划</span><span class="rs-val">${todayPlan ? todayPlan.title : '休息日'}</span></div>
+    <div class="review-stat"><span>动作完成</span><span class="rs-val" style="color:${trainDone===trainTotal&&trainTotal>0?'var(--primary)':'var(--text2)'}">${trainDone}/${trainTotal}</span></div>
+    ${trainTotal > 0 && trainDone < trainTotal ? `<div style="font-size:12px;color:var(--text2);margin-top:8px">还有 ${trainTotal-trainDone} 个动作没完成，明天加油</div>` : trainDone === trainTotal && trainTotal > 0 ? '<div style="font-size:12px;color:var(--primary);margin-top:8px">🔥 训练全部完成！</div>' : ''}
+  </div>`;
+
+  // 饮食
+  const dietStatus = dietCal === 0 ? '未记录' : dietCal <= settings.dailyGoal ? '达标' : '超标';
+  const dietColor = dietCal === 0 ? 'var(--text3)' : dietCal <= settings.dailyGoal ? 'var(--primary)' : 'var(--danger)';
+  html += `<div class="review-block">
+    <div class="review-block-title">🍽 饮食</div>
+    <div class="review-stat"><span>摄入热量</span><span class="rs-val">${Math.round(dietCal)} kcal</span></div>
+    <div class="review-stat"><span>目标热量</span><span class="rs-val">${settings.dailyGoal} kcal</span></div>
+    <div class="review-stat"><span>状态</span><span class="rs-val" style="color:${dietColor}">${dietStatus}</span></div>
+  </div>`;
+
+  // 想法记录
+  html += `<div class="review-block">
+    <div class="review-block-title">💭 想法记录</div>
+    <div class="review-stat"><span>今日记录</span><span class="rs-val">${thoughtCount} 条</span></div>
+    ${thoughtCount > 0 ? '<div style="font-size:12px;color:var(--primary);margin-top:8px">✨ 坚持记录，觉察是改变的开始</div>' : '<div style="font-size:12px;color:var(--text2);margin-top:8px">今天还没记录想法，试着写点什么？</div>'}
+  </div>`;
+
+  // 改进建议
+  html += `<div class="review-block" style="background:rgba(245,158,11,.06)">
+    <div class="review-block-title">📈 明日建议</div>`;
+  const tips = [];
+  if (todoDone < todos.length) tips.push('把未完成的待办移到明天，优先处理高优先项');
+  if (trainTotal > 0 && trainDone < trainTotal) tips.push('今天训练没做完，明天可以补上');
+  if (dietCal > settings.dailyGoal) tips.push('今天摄入超标，明天注意控制饮食');
+  if (dietCal === 0) tips.push('明天记得记录饮食，数据才能帮你分析');
+  if (thoughtCount === 0) tips.push('试试每天写几句想法，帮助梳理思绪');
+  if (tips.length === 0) tips.push('今天表现很棒！明天继续保持节奏 💪');
+  tips.forEach(t => html += `<div style="font-size:13px;color:var(--text2);margin-bottom:6px">• ${t}</div>`);
+  html += `</div>`;
+
+  document.getElementById('buddy-review').innerHTML = html;
+
+  // 保存复盘
+  const log2 = getBuddyLogs()[today] || { inputs: [], plan: [], review: null };
+  log2.review = { score, grade, date: today, generatedAt: new Date().toISOString() };
+  saveBuddyLog(today, log2);
+}
+
+function renderBuddyHistory() {
+  const logs = getBuddyLogs();
+  const entries = Object.entries(logs).sort((a, b) => b[0].localeCompare(a[0]));
+  const el = document.getElementById('buddy-history');
+  if (entries.length === 0) {
+    el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px 0">还没有记录</div>';
+    return;
+  }
+  el.innerHTML = entries.slice(0, 20).map(([date, log]) => {
+    const d = new Date(date);
+    const days = ['日','一','二','三','四','五','六'];
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} 周${days[d.getDay()]}`;
+    const itemCount = log.inputs ? log.inputs.reduce((s, i) => s + i.items.length, 0) : 0;
+    const score = log.review ? `${log.review.score}分` : '未复盘';
+    const preview = log.inputs && log.inputs[0] ? log.inputs[0].raw.slice(0, 40) : '无内容';
+    return `<div class="history-item" onclick="viewHistory('${date}')">
+      <div class="history-item-date">${dateStr} · ${itemCount}条记录 · ${score}</div>
+      <div class="history-item-preview">${escHtml(preview)}</div>
+    </div>`;
+  }).join('');
+}
+
+function viewHistory(date) {
+  const log = getBuddyLogs()[date];
+  if (!log) return;
+  const d = new Date(date);
+  const days = ['日','一','二','三','四','五','六'];
+  const dateStr = `${d.getMonth()+1}月${d.getDate()}日 周${days[d.getDay()]}`;
+  let html = `<div class="modal-header"><div class="modal-title">📖 ${dateStr}</div><div class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>`;
+  if (log.inputs && log.inputs.length > 0) {
+    html += '<div class="label">记录内容</div>';
+    log.inputs.forEach(inp => {
+      html += `<div style="padding:12px;background:rgba(255,255,255,.04);border-radius:10px;margin-bottom:8px;font-size:14px;line-height:1.7;white-space:pre-wrap">${escHtml(inp.raw)}</div>`;
+    });
+  }
+  if (log.review) {
+    html += `<div class="label" style="margin-top:16px">复盘评分</div>`;
+    html += `<div style="padding:16px;background:rgba(34,197,94,.06);border-radius:12px;text-align:center"><div style="font-size:36px;font-weight:800;color:var(--primary)">${log.review.score}分 · ${log.review.grade}级</div></div>`;
+  }
+  showModal(html);
+}
+
+function renderBuddy() {
+  renderBuddyHistory();
+  // Restore last result if exists
+  const today = todayKey();
+  const log = getBuddyLogs()[today];
+  if (log && log.inputs && log.inputs.length > 0) {
+    const lastInput = log.inputs[log.inputs.length - 1];
+    renderBuddyResult(lastInput.items);
+  } else {
+    document.getElementById('buddy-result').style.display = 'none';
+  }
+}
 
 /* ================================================================
    NOTIFICATION MODULE
