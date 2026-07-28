@@ -235,6 +235,16 @@ body{
   animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)
 }
 @keyframes popIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+/* ===== Notification Toggle ===== */
+.notif-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(51,65,85,.3);color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s
+}
+.notif-btn.enabled{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--primary)}
+.notif-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.notif-btn:active{transform:scale(.95)}
 </style>
 </head>
 <body>
@@ -243,9 +253,15 @@ body{
 
     <!-- ============ PAGE: TODO ============ -->
     <div class="page active" id="page-todo">
-      <div class="page-header">
-        <div class="page-title">待办打卡</div>
-        <div class="page-sub" id="todo-date-sub"></div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title">待办打卡</div>
+          <div class="page-sub" id="todo-date-sub"></div>
+        </div>
+        <button class="notif-btn" id="notif-toggle" onclick="askNotifPermissionIfNeeded()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="notif-status">开启通知</span>
+        </button>
       </div>
       <div class="card">
         <div class="ring-wrap">
@@ -1469,8 +1485,30 @@ function init() {
   if (!DB.get('train_plan', null)) {
     DB.set('train_plan', JSON.parse(JSON.stringify(DEFAULT_PLAN)));
   }
+  // Update notification button state
+  updateNotifButton();
   // Render initial page
   switchPage('todo');
+  // Start scheduled reminders if permission granted
+  startScheduledReminders();
+}
+
+function updateNotifButton() {
+  const btn = document.getElementById('notif-toggle');
+  const statusEl = document.getElementById('notif-status');
+  if (!btn || !statusEl) return;
+  if ('Notification' in window && Notification.permission === 'granted') {
+    btn.classList.add('enabled');
+    statusEl.textContent = '通知已开';
+    DB.set('notif_enabled', true);
+  } else if ('Notification' in window && Notification.permission === 'denied') {
+    btn.classList.remove('enabled');
+    statusEl.textContent = '通知被禁';
+    DB.set('notif_enabled', false);
+  } else {
+    btn.classList.remove('enabled');
+    statusEl.textContent = '开启通知';
+  }
 }
 
 // Handle back button / escape
@@ -1550,6 +1588,150 @@ function showInstallHint() {
 
 // Start
 init();
+
+/* ================================================================
+   NOTIFICATION MODULE
+   锁屏通知 + 状态栏提醒 + 定时提醒
+================================================================ */
+
+// ===== Notification Permission =====
+function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') return;
+  // Don't ask immediately, wait for user interaction
+  DB.set('notif_asked', false);
+}
+
+function askNotifPermissionIfNeeded() {
+  if (!('Notification' in window)) { toast('你的浏览器不支持通知'); return; }
+  if (Notification.permission === 'granted') {
+    DB.set('notif_enabled', true);
+    toast('通知已开启 ✓');
+    sendDailyTodoNotif();
+    updateNotifButton();
+    startScheduledReminders();
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    toast('通知被禁止，请去手机设置 → 通知 → FitBuddy 开启');
+    return;
+  }
+  Notification.requestPermission().then(p => {
+    if (p === 'granted') {
+      DB.set('notif_enabled', true);
+      toast('通知已开启，锁屏可见待办 ✓');
+      sendDailyTodoNotif();
+      updateNotifButton();
+      startScheduledReminders();
+    } else {
+      DB.set('notif_enabled', false);
+      toast('通知权限被拒绝，请去手机设置中开启');
+      updateNotifButton();
+    }
+  });
+}
+
+// ===== Send Notifications =====
+function sendNotif(title, body, tag, icon) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(title, {
+      body: body,
+      tag: tag || 'fitbuddy',
+      icon: icon || 'icon-192.png',
+      badge: 'icon-192.png',
+      requireInteraction: false,
+      silent: false,
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+    // Auto-close after 8 seconds
+    setTimeout(() => n.close(), 8000);
+  } catch(e) {}
+}
+
+function sendDailyTodoNotif() {
+  const todos = getTodos();
+  const undone = todos.filter(t => !t.done);
+  if (undone.length === 0) {
+    sendNotif('FitBuddy ✓', '今日待办全部完成！继续保持 💪', 'daily-all-done');
+  } else {
+    const list = undone.slice(0, 5).map(t => t.text).join('\n');
+    const more = undone.length > 5 ? `\n...还有${undone.length-5}项` : '';
+    sendNotif('FitBuddy · 今日待办', `${undone.length}项待完成：\n${list}${more}`, 'daily-todo');
+  }
+}
+
+function sendTrainReminderNotif() {
+  const jsDay = new Date().getDay();
+  const weekDay = jsDay === 0 ? 7 : jsDay;
+  const plan = getPlan();
+  const todayPlan = plan.find(d => d.day === weekDay);
+  if (todayPlan) {
+    sendNotif('FitBuddy · 今日训练', `${todayPlan.title} (${todayPlan.focus}) — ${todayPlan.exercises.length}个动作`, 'daily-train');
+  }
+}
+
+function sendDietReminderNotif() {
+  const today = todayKey();
+  const log = getDietLog(today);
+  let totalCal = 0;
+  MEALS.forEach(m => (log[m.key]||[]).forEach(f => totalCal += f.cal));
+  const settings = getSettings();
+  if (totalCal === 0) {
+    sendNotif('FitBuddy · 饮食提醒', '今天还没记录饮食，记得记录三餐哦 🍽', 'diet-remind');
+  } else if (totalCal < settings.dailyGoal * 0.3) {
+    sendNotif('FitBuddy · 饮食提醒', `今日仅摄入${Math.round(totalCal)}kcal，目标${settings.dailyGoal}kcal，注意补充营养`, 'diet-low');
+  }
+}
+
+// ===== Scheduled Reminders (using setInterval as PWA can't use background tasks) =====
+function startScheduledReminders() {
+  if (!DB.get('notif_enabled', false)) return;
+  if (Notification.permission !== 'granted') return;
+
+  // Morning todo reminder at ~8:00
+  scheduleAtHour(8, () => {
+    sendDailyTodoNotif();
+  });
+
+  // Train reminder at ~17:00
+  scheduleAtHour(17, () => {
+    sendTrainReminderNotif();
+  });
+
+  // Diet reminder at ~19:00 if haven't recorded dinner
+  scheduleAtHour(19, () => {
+    sendDietReminderNotif();
+  });
+
+  // Evening todo check at ~21:00
+  scheduleAtHour(21, () => {
+    const todos = getTodos();
+    const undone = todos.filter(t => !t.done);
+    if (undone.length > 0) {
+      sendNotif('FitBuddy · 待办提醒', `还有${undone.length}项未完成，抓紧时间！`, 'evening-todo');
+    }
+  });
+}
+
+function scheduleAtHour(hour, callback) {
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(hour, 0, 0, 0);
+  if (target <= now) {
+    target.setDate(target.getDate() + 1); // Next day
+  }
+  const delay = target - now;
+  // Set timeout for first occurrence
+  setTimeout(() => {
+    callback();
+    // Then repeat every 24 hours
+    setInterval(callback, 24 * 60 * 60 * 1000);
+  }, delay);
+}
+
+// Auto-request permission hint on first use
+requestNotifPermission();
 </script>
 </body>
 </html>
