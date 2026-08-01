@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="FitBuddy">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="FitBuddy">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#0a1929">
 <meta name="description" content="减脂工作台：待办打卡、训练计划、饮食记录与卡路里、热量缺口计算">
 
 <!-- PWA -->
@@ -23,10 +23,10 @@
 <title>FitBuddy · 减脂工作台</title>
 <style>
 :root{
-  --bg:#0b1120; --bg2:#0f172a; --card:#1e293b; --card2:#273449;
-  --border:#334155; --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
-  --primary:#22c55e; --primary-d:#16a34a; --accent:#f59e0b; --danger:#ef4444;
-  --blue:#3b82f6; --purple:#a855f7; --pink:#ec4899; --cyan:#06b6d4;
+  --bg:#0a1929; --bg2:#0f2540; --card:#13294a; --card2:#1a3a5c;
+  --border:#2a4a73; --text:#f0f7ff; --text2:#9bb8d8; --text3:#5a7a9c;
+  --primary:#5b9bd5; --primary-d:#2c7ab8; --accent:#4ec0e4; --danger:#e8505b;
+  --blue:#5b9bd5; --purple:#9b6dff; --pink:#e8505b; --cyan:#4ec0e4;
   --radius:20px; --radius-s:14px; --shadow:0 10px 40px rgba(0,0,0,.35);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -34,8 +34,8 @@ html,body{height:100%;overflow:hidden}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   background:
-    radial-gradient(circle at 10% 0%, rgba(34,197,94,.12) 0%, transparent 35%),
-    radial-gradient(circle at 90% 20%, rgba(59,130,246,.10) 0%, transparent 35%),
+    radial-gradient(circle at 10% 0%, rgba(91,155,213,.18) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(78,192,228,.12) 0%, transparent 35%),
     var(--bg);
   color:var(--text);font-size:15px;line-height:1.5;
   -webkit-font-smoothing:antialiased;
@@ -55,7 +55,7 @@ body{
 }
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text3);font-size:10px;cursor:pointer;padding:8px 14px;border-radius:16px;transition:all .25s;flex:1;text-align:center;position:relative}
 .nav-item svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.nav-item.active{color:#fff;background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);box-shadow:0 4px 16px rgba(34,197,94,.35)}
+.nav-item.active{color:#fff;background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);box-shadow:0 4px 16px rgba(91,155,213,.4)}
 .nav-item.active svg{stroke:#fff}
 .nav-item:active{transform:scale(.92)}
 /* ===== Pages ===== */
@@ -87,13 +87,13 @@ body{
 .stat-card .icon{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;opacity:.9;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .stat-card .icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
 /* ===== Buttons ===== */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:var(--radius-s);border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;color:#fff;background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);box-shadow:0 4px 16px rgba(34,197,94,.3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:var(--radius-s);border:none;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;color:#fff;background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);box-shadow:0 4px 16px rgba(91,155,213,.35)}
 .btn:active{transform:scale(.96)}
 .btn-block{display:flex;width:100%;padding:16px}
 .btn-sm{padding:8px 14px;font-size:13px}
 .btn-primary{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%)}
-.btn-accent{background:linear-gradient(135deg, #fbbf24 0%, var(--accent) 100%)}
-.btn-danger{background:linear-gradient(135deg, #f87171 0%, var(--danger) 100%)}
+.btn-accent{background:linear-gradient(135deg, #7dd3e8 0%, var(--accent) 100%)}
+.btn-danger{background:linear-gradient(135deg, #f06a73 0%, var(--danger) 100%)}
 .btn-ghost{background:rgba(51,65,85,.4);color:var(--text);border:1px solid rgba(255,255,255,.1);box-shadow:none}
 .btn-blue{background:linear-gradient(135deg, #60a5fa 0%, var(--blue) 100%)}
 .btn-blue{background:var(--blue)}
@@ -108,7 +108,7 @@ body{
 .todo-item.done{opacity:.6;background:linear-gradient(145deg, rgba(34,197,94,.08) 0%, rgba(30,41,59,.45) 100%);border-color:rgba(34,197,94,.2)}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--text3)}
 .todo-check{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .25s;background:rgba(255,255,255,.03)}
-.todo-check.done{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);border-color:transparent;box-shadow:0 4px 12px rgba(34,197,94,.4)}
+.todo-check.done{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);border-color:transparent;box-shadow:0 4px 12px rgba(91,155,213,.4)}
 .todo-check.done svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:3}
 .todo-text{flex:1;font-size:16px;font-weight:500}
 .todo-del{color:var(--text3);cursor:pointer;padding:6px}
@@ -116,7 +116,7 @@ body{
 .todo-del:active{color:var(--danger)}
 /* ===== Progress Ring ===== */
 .ring-wrap{display:flex;align-items:center;justify-content:center;gap:20px}
-.ring{position:relative;width:130px;height:130px;filter:drop-shadow(0 4px 12px rgba(34,197,94,.25))}
+.ring{position:relative;width:130px;height:130px;filter:drop-shadow(0 4px 12px rgba(91,155,213,.3))}
 .ring svg{transform:rotate(-90deg)}
 .ring-bg{stroke:var(--border);stroke-width:9;fill:none}
 .ring-fg{stroke:var(--primary);stroke-width:9;fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
@@ -158,7 +158,7 @@ body{
 .exercise{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
 .exercise:last-child{border-bottom:none}
 .ex-check{width:30px;height:30px;border-radius:10px;border:2.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;background:rgba(255,255,255,.03)}
-.ex-check.done{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);border-color:transparent;box-shadow:0 4px 12px rgba(34,197,94,.4)}
+.ex-check.done{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);border-color:transparent;box-shadow:0 4px 12px rgba(91,155,213,.4)}
 .ex-check.done svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:3}
 .ex-info{flex:1}
 .ex-name{font-weight:600;font-size:15px}
@@ -183,7 +183,7 @@ body{
   position:fixed;bottom:96px;right:20px;width:60px;height:60px;border-radius:50%;
   background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);
   border:none;color:#fff;font-size:32px;cursor:pointer;
-  box-shadow:0 6px 24px rgba(34,197,94,.45);z-index:90;
+  box-shadow:0 6px 24px rgba(91,155,213,.5);z-index:90;
   display:flex;align-items:center;justify-content:center;transition:all .2s
 }
 .fab:active{transform:scale(.9)}
@@ -217,10 +217,10 @@ body{
 /* ===== Toggle ===== */
 .seg{display:flex;background:rgba(15,23,42,.5);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-s);padding:4px;gap:4px;margin-bottom:14px}
 .seg-item{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
-.seg-item.active{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);color:#fff;box-shadow:0 4px 12px rgba(34,197,94,.3)}
+.seg-item.active{background:linear-gradient(135deg, var(--primary) 0%, var(--primary-d) 100%);color:#fff;box-shadow:0 4px 12px rgba(91,155,213,.3)}
 /* Badge */
 .badge{display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:8px}
-.badge-green{background:rgba(34,197,94,.15);color:var(--primary)}
+.badge-green{background:rgba(91,155,213,.15);color:var(--primary)}
 .badge-red{background:rgba(239,68,68,.15);color:var(--danger)}
 .badge-amber{background:rgba(245,158,11,.15);color:var(--accent)}
 /* Streak flame */
@@ -229,9 +229,9 @@ body{
 .celebrate{position:fixed;inset:0;pointer-events:none;z-index:400;display:none;align-items:center;justify-content:center}
 .celebrate.show{display:flex}
 .celebrate-text{
-  background:linear-gradient(135deg, rgba(34,197,94,.95) 0%, rgba(22,163,74,.95) 100%);
+  background:linear-gradient(135deg, rgba(91,155,213,.95) 0%, rgba(44,122,184,.95) 100%);
   color:#fff;padding:18px 36px;border-radius:20px;font-size:22px;font-weight:800;
-  box-shadow:0 12px 40px rgba(34,197,94,.4);
+  box-shadow:0 12px 40px rgba(91,155,213,.4);
   animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)
 }
 @keyframes popIn{0%{transform:scale(.3);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
@@ -242,7 +242,7 @@ body{
   background:rgba(51,65,85,.3);color:var(--text2);font-size:12px;font-weight:600;
   cursor:pointer;transition:all .15s
 }
-.notif-btn.enabled{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:var(--primary)}
+.notif-btn.enabled{background:rgba(91,155,213,.15);border-color:rgba(91,155,213,.3);color:var(--primary)}
 .notif-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .notif-btn:active{transform:scale(.95)}
 /* ===== Buddy Page ===== */
