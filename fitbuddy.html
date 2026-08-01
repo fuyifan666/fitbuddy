@@ -267,6 +267,29 @@ body{
 .history-item{padding:12px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:8px;cursor:pointer}
 .history-item-date{font-size:11px;color:var(--text3);margin-bottom:4px}
 .history-item-preview{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== Speak Page ===== */
+.speak-topic-display{
+  font-family:'PingFang SC',-apple-system,BlinkMacSystemFont,serif;
+  font-weight:700;
+  letter-spacing:-.5px;
+}
+.speak-material-list{margin:0;padding:0;list-style:none}
+.speak-material-list li{
+  padding:10px 12px;margin-bottom:8px;
+  background:rgba(255,255,255,.04);border-radius:10px;
+  border-left:3px solid var(--primary);
+  font-size:14px;line-height:1.7
+}
+.speak-material-list li b{color:var(--primary);font-weight:700;margin-right:6px}
+.speak-history-item{
+  padding:12px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px
+}
+.speak-history-info{flex:1}
+.speak-history-topic{font-weight:600;font-size:14px;margin-bottom:4px}
+.speak-history-meta{font-size:11px;color:var(--text3)}
+.speak-history-mode{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:var(--primary)}
+#speak-timer{font-family:'SF Mono','Consolas',monospace;letter-spacing:2px}
 </style>
 </head>
 <body>
@@ -468,6 +491,92 @@ body{
       </div>
     </div>
 
+    <!-- ============ PAGE: SPEAK ============ -->
+    <div class="page" id="page-speak">
+      <div class="page-header">
+        <div class="page-title">表达练习</div>
+        <div class="page-sub">随机一个知识点 · 学习 · 讲解 · 提升表达力</div>
+      </div>
+
+      <!-- 模式选择 -->
+      <div class="seg" id="speak-mode">
+        <div class="seg-item active" data-mode="instant" onclick="speakSetMode('instant')">⚡ 即兴</div>
+        <div class="seg-item" data-mode="deep" onclick="speakSetMode('deep')">📚 深研</div>
+        <div class="seg-item" data-mode="retell" onclick="speakSetMode('retell')">🗣 复述</div>
+      </div>
+
+      <!-- 分类选择 -->
+      <div class="card">
+        <div class="card-title"><span>选择分类</span></div>
+        <select class="select" id="speak-category" onchange="speakRandom()">
+          <option value="all">全部分类</option>
+          <option value="fitness">💪 健身减脂</option>
+          <option value="nutrition">🥗 营养科学</option>
+          <option value="psychology">🧠 心理学</option>
+          <option value="business">💼 商业思维</option>
+          <option value="science">🔬 科学常识</option>
+          <option value="history">📜 历史人文</option>
+          <option value="life">🌱 生活技能</option>
+          <option value="philosophy">💭 哲学思辨</option>
+        </select>
+      </div>
+
+      <!-- 主题显示区 -->
+      <div class="card" id="speak-topic-card" style="text-align:center;min-height:140px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px" id="speak-state">READY</div>
+        <div id="speak-topic" style="font-size:26px;font-weight:700;line-height:1.4;font-family:'Fraunces','PingFang SC',serif">点击下方按钮抽取知识点</div>
+      </div>
+
+      <!-- 学习资料（深研模式） -->
+      <div class="card" id="speak-material-card" style="display:none">
+        <div class="card-title"><span>📖 学习资料</span><span id="speak-read-status"></span></div>
+        <div id="speak-material" style="font-size:14px;line-height:1.9;color:var(--text2)"></div>
+      </div>
+
+      <!-- 计时器 -->
+      <div class="card" id="speak-timer-card" style="display:none">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">⏱ 计时器</div>
+          <div style="font-size:48px;font-weight:800;font-variant-numeric:tabular-nums" id="speak-timer">01:00</div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+            <button class="btn btn-primary btn-sm" id="speak-timer-btn" onclick="speakTimerToggle()">▶ 开始</button>
+            <button class="btn btn-ghost btn-sm" onclick="speakTimerReset()">↺ 重置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <button class="btn btn-primary btn-block" onclick="speakRandom()">✦ 随机抽取</button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-block" id="speak-save-btn" onclick="speakSave()" style="display:none">💾 保存记录</button>
+        <button class="btn btn-ghost btn-block" onclick="speakMarkDone()" id="speak-done-btn" style="display:none">✓ 我讲完了</button>
+      </div>
+
+      <!-- 练习历史 -->
+      <div class="card">
+        <div class="card-title"><span>📊 练习统计</span></div>
+        <div class="stats-row" style="margin-bottom:0">
+          <div class="stat-card">
+            <div class="stat-value" id="speak-stat-total">0<span class="stat-unit">次</span></div>
+            <div class="stat-label">累计练习</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="speak-stat-today">0<span class="stat-unit">次</span></div>
+            <div class="stat-label">今日练习</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📚 最近练习</span></div>
+        <div id="speak-history" style="max-height:300px;overflow-y:auto">
+          <div style="color:var(--text3);text-align:center;padding:20px 0">还没有练习记录</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /view-area -->
 
   <!-- ===== FAB ===== -->
@@ -494,6 +603,10 @@ body{
     <div class="nav-item" data-page="buddy">
       <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
       <span>伙伴</span>
+    </div>
+    <div class="nav-item" data-page="speak">
+      <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      <span>表达</span>
     </div>
   </div>
 </div>
@@ -612,6 +725,7 @@ function switchPage(page) {
   if (page === 'diet') renderDiet();
   if (page === 'cal') renderCalorie();
   if (page === 'buddy') renderBuddy();
+  if (page === 'speak') renderSpeak();
 }
 
 // ===== FAB =====
@@ -2050,6 +2164,453 @@ function renderBuddy() {
     document.getElementById('buddy-result').style.display = 'none';
   }
 }
+
+/* ================================================================
+   SPEAK MODULE - 表达练习
+   参考 unprompted.cool：随机抽取知识点 → 学习 → 讲解 → 记录
+================================================================ */
+
+// ===== 知识点库 =====
+// 每个知识点：{ cat, topic, material: [要点1, 要点2, ...] }
+const KNOWLEDGE_BASE = [
+  // ===== 健身减脂 =====
+  { cat: 'fitness', topic: '什么是热量缺口', material: [
+    '热量缺口 = 每日消耗（TDEE）− 每日摄入',
+    '体重1kg脂肪 ≈ 7700大卡',
+    '每周减0.5kg ≈ 每天500大卡缺口',
+    '推荐缺口：300-500大卡/天，过大易反弹'
+  ]},
+  { cat: 'fitness', topic: '深蹲的标准动作', material: [
+    '双脚与肩同宽，脚尖略外展',
+    '下蹲时膝盖方向与脚尖一致，不内扣',
+    '蹲到大腿与地面平行或更低',
+    '全程保持核心收紧，脊柱中立'
+  ]},
+  { cat: 'fitness', topic: '有氧 vs 无氧的区别', material: [
+    '有氧：低强度长时，主要消耗脂肪和糖原',
+    '无氧：高强度短时，主要增强肌肉力量',
+    '减脂需要两者结合，单纯有氧易反弹',
+    '力量训练提升基础代谢，长期更有效'
+  ]},
+  { cat: 'fitness', topic: '如何安排一周训练', material: [
+    '新手建议每周3-4次训练，间隔休息',
+    '推拉腿分化是经典模式',
+    '每个肌群至少48小时恢复',
+    '训练容量：每个部位10-20组/周'
+  ]},
+  { cat: 'fitness', topic: '为什么蛋白质很重要', material: [
+    '蛋白质是肌肉合成的基础',
+    '饱腹感强，减少饥饿',
+    '食物热效应高，约30%热量用于消化',
+    '减脂期建议1.6-2.2g/kg体重/天'
+  ]},
+  { cat: 'fitness', topic: 'HIIT训练原理', material: [
+    '高强度间歇训练：短时间高强度 + 低强度恢复',
+    'EPOC效应：训练后24小时持续燃脂',
+    '每次15-20分钟即可，时间效率高',
+    '不适合每天做，每周2-3次足够'
+  ]},
+  { cat: 'fitness', topic: '为什么女生要多做力量训练', material: [
+    '提升基础代谢，躺着也燃脂',
+    '塑形不是减脂，肌肉让线条紧致',
+    '预防骨质疏松',
+    '女性增肌比男性难很多，不必担心变壮'
+  ]},
+
+  // ===== 营养科学 =====
+  { cat: 'nutrition', topic: '三大宏量营养素的作用', material: [
+    '碳水：主要能量来源，影响血糖和胰岛素',
+    '蛋白质：构建和修复组织，酶和激素的原料',
+    '脂肪：激素合成、吸收脂溶性维生素、储能',
+    '三者缺一不可，关键在比例和来源'
+  ]},
+  { cat: 'nutrition', topic: 'GI值与减脂的关系', material: [
+    'GI = 升糖指数，衡量食物升高血糖的速度',
+    '低GI食物饱腹感强，更利于控制食欲',
+    '减脂优选：粗粮、绿叶蔬菜、豆类',
+    '高GI食物：白米饭、面包、糖，要控制量'
+  ]},
+  { cat: 'nutrition', topic: '为什么不能完全不吃主食', material: [
+    '主食是大脑主要能量来源',
+    '长期低碳会引起情绪低落、月经紊乱',
+    '正确做法：换成粗粮，控制总量而非不吃',
+    '每餐一拳大小主食是比较合适的量'
+  ]},
+  { cat: 'nutrition', topic: '健康脂肪的来源', material: [
+    '优质脂肪：橄榄油、牛油果、深海鱼、坚果',
+    '避免反式脂肪：植脂末、人造黄油、深度加工食品',
+    '脂肪摄入占总热量20-30%为宜',
+    'Omega-3对大脑和心血管健康很重要'
+  ]},
+  { cat: 'nutrition', topic: '为什么减脂要多吃蔬菜', material: [
+    '蔬菜热量低、饱腹感强',
+    '富含纤维和维生素',
+    '每天推荐500g以上蔬菜',
+    '绿叶蔬菜：菠菜、油菜、生菜最佳'
+  ]},
+  { cat: 'nutrition', topic: '如何健康喝水', material: [
+    '成年人每日推荐饮水1500-2000ml',
+    '起床后、餐前30分钟、运动后各一杯',
+    '不要等口渴才喝，那时已经轻度脱水',
+    '避免含糖饮料，茶和黑咖啡也是好选择'
+  ]},
+
+  // ===== 心理学 =====
+  { cat: 'psychology', topic: '什么是"非黑即白"思维陷阱', material: [
+    '把所有事看成非好即坏，没有中间地带',
+    '表现：少吃了一顿 → "我完了" → 暴食',
+    '解决：识别极端词汇（"永远"、"从不"、"全部"）',
+    '用"有时候"、"部分"代替，承认中间状态'
+  ]},
+  { cat: 'psychology', topic: '如何建立长期习惯', material: [
+    '微习惯：从1分钟开始，比"每天1小时"更容易坚持',
+    '触发设计：把新习惯绑定到已有的固定动作上',
+    '奖励机制：完成后立刻给自己一个小奖励',
+    '记录可视化：用日历打勾，看到连续天数'
+  ]},
+  { cat: 'psychology', topic: '什么是"延迟满足"能力', material: [
+    '为了长期更大的回报，放弃短期小诱惑',
+    '经典实验：能忍住不吃棉花糖的孩子，未来更成功',
+    '训练方法：把"不做什么"变成"我现在做别的"',
+    '应用：把零食换成水果、把刷手机换成看书'
+  ]},
+  { cat: 'psychology', topic: '如何对抗完美主义', material: [
+    '完美主义 = 用高标准逼自己放弃',
+    '完成 > 完美：60分做出来比100分不做好',
+    '"足够好"是健康的完成标准',
+    '接受自己会有状态不好的日子'
+  ]},
+  { cat: 'psychology', topic: '什么是"心流"状态', material: [
+    '全神贯注、完全沉浸、时间感消失',
+    '挑战与能力匹配时最容易出现',
+    '应用：选难度合适的工作，关闭所有干扰',
+    '心流状态下效率是平时的3-5倍'
+  ]},
+  { cat: 'psychology', topic: '为什么需要写日记', material: [
+    '把情绪外化，降低大脑负担',
+    '看清思维模式，找到问题根源',
+    '定期回看，识别成长轨迹',
+    '不需要写得多好，关键在持续'
+  ]},
+
+  // ===== 商业思维 =====
+  { cat: 'business', topic: '什么是"复利效应"', material: [
+    '不只是金融，复利在技能和人际关系中也存在',
+    '每天进步1%，一年后能力是37.78倍',
+    '关键：找到能持续的小雪球，长期滚动',
+    '前期慢、后期快，大部分人在"慢"的时候就放弃了'
+  ]},
+  { cat: 'business', topic: '什么是"二八定律"', material: [
+    '80%的结果来自20%的原因',
+    '应用：识别那20%关键客户、关键技能、关键习惯',
+    '把80%精力投入20%核心事项',
+    '减脂中：20%的饮食控制决定80%的效果'
+  ]},
+  { cat: 'business', topic: '"第一性原理"思考法', material: [
+    '从最基本的真理出发，不被表象迷惑',
+    '问5次"为什么"，找到问题根源',
+    '应用：为什么胖 → 热量过剩 → 为什么过剩 → 摄入大于消耗',
+    '用物理和数学的逻辑思考问题'
+  ]},
+  { cat: 'business', topic: '如何做"决策"', material: [
+    '可逆决策：快速做，错了就改',
+    '不可逆决策：慎重，可以睡一觉再决定',
+    '10-10-10法则：10分钟/10个月/10年后会怎么看',
+    '信任自己的判断，大多数焦虑来自拖延'
+  ]},
+
+  // ===== 科学常识 =====
+  { cat: 'science', topic: '基础代谢是什么', material: [
+    'BMR = Basic Metabolic Rate',
+    '即使整天躺着，身体也要消耗的能量',
+    '约占总消耗的60-70%',
+    '公式（Mifflin）：10×体重 + 6.25×身高 - 5×年龄 ± 5/161'
+  ]},
+  { cat: 'science', topic: '为什么人会感觉累', material: [
+    '身体疲劳：肌肉代谢物堆积、能量耗尽',
+    '心理疲劳：决策疲劳、注意力资源耗尽',
+    '睡眠不足、脱水、低血糖都会加重',
+    '真正恢复：睡眠 > 主动休息 > 被动娱乐'
+  ]},
+  { cat: 'science', topic: '睡眠的重要性', material: [
+    '睡眠是身体修复、记忆巩固、情绪调节的时间',
+    '成人推荐7-9小时',
+    '深度睡眠时生长激素分泌最旺盛',
+    '长期睡眠不足与肥胖、糖尿病直接相关'
+  ]},
+  { cat: 'science', topic: '为什么运动后要拉伸', material: [
+    '降低肌肉张力，缓解酸痛',
+    '增加关节活动范围，预防受伤',
+    '每个动作保持30秒，不要弹振',
+    '运动后拉伸比运动前更重要'
+  ]},
+
+  // ===== 历史人文 =====
+  { cat: 'history', topic: '孙子兵法的核心思想', material: [
+    '"不战而屈人之兵"是上策',
+    '"知己知彼，百战不殆"',
+    '"兵贵神速"——机会窗口有时效',
+    '应用到减脂：不与食欲硬抗，找到不饿的方法'
+  ]},
+  { cat: 'history', topic: '为什么宋朝经济发达', material: [
+    '取消宵禁，城市商业繁荣',
+    '世界上最早的纸币"交子"',
+    '海外贸易发达，丝绸之路兴盛',
+    '科技发达：活字印刷、火药、指南针广泛应用'
+  ]},
+  { cat: 'history', topic: '丝绸之路的意义', material: [
+    '不只是贸易路，是文化交流通道',
+    '促进了东西方的物质、技术、思想交流',
+    '佛教、艺术、天文、医学都通过它传入',
+    '今天的"一带一路"是现代版丝绸之路'
+  ]},
+
+  // ===== 生活技能 =====
+  { cat: 'life', topic: '如何做出好吃的减脂餐', material: [
+    '公式：优质蛋白 + 复杂碳水 + 大量蔬菜 + 少量好油',
+    '调味：少盐多葱姜蒜，黑胡椒、柠檬汁',
+    '烹饪方式：蒸、煮、炖、烤优于煎炸',
+    '提前备餐：周末做好一周的便当'
+  ]},
+  { cat: 'life', topic: '如何高效整理房间', material: [
+    '断舍离：3个月没用的东西，要么用，要么扔',
+    '一进一出：进一件新东西，淘汰一件旧的',
+    '按使用频率收纳：每天用的放最方便位置',
+    '每天花10分钟，比一次大扫除更有效'
+  ]},
+  { cat: 'life', topic: '如何养成早起的习惯', material: [
+    '关键在前一晚：22:30前关掉强光',
+    '起床第一件事：拉开窗帘见阳光',
+    '给自己一个期待的早起理由（咖啡、运动）',
+    '坚持2-3周身体时钟会自动调整'
+  ]},
+
+  // ===== 哲学思辨 =====
+  { cat: 'philosophy', topic: '什么是"长期主义"', material: [
+    '不为短期利益牺牲长期价值',
+    '延迟满足，相信复利的力量',
+    '做正确的事，即使短期看不到效果',
+    '减脂、健身、学习都是长期主义的体现'
+  ]},
+  { cat: 'philosophy', topic: '"知行合一"是什么意思', material: [
+    '王阳明心学核心：知道做不到等于不知道',
+    '真正的认知必须能转化为行动',
+    '不要等"准备好了"才行动，行动本身会修正认知',
+    '应用：与其纠结方法，不如先跑起来'
+  ]},
+  { cat: 'philosophy', topic: '如何面对不确定性', material: [
+    '承认世界本质是不确定的',
+    '关注可控的（你的努力），放下不可控的（结果）',
+    '建立"反脆弱"能力：从小挫折中变强',
+    '减脂中：体重波动是正常的，看趋势不看单次'
+  ]},
+];
+
+// ===== State =====
+let speakMode = 'instant'; // instant | deep | retell
+let speakCurrentTopic = null;
+let speakTimerInterval = null;
+let speakTimerSeconds = 60;
+let speakTimerRunning = false;
+let speakReadDone = false;
+
+function speakSetMode(mode) {
+  speakMode = mode;
+  document.querySelectorAll('#speak-mode .seg-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.mode === mode);
+  });
+  // Reset timer
+  speakTimerReset();
+  // Adjust default timer length
+  speakTimerSeconds = mode === 'deep' ? 60 : mode === 'retell' ? 120 : 60;
+  updateSpeakTimerDisplay();
+  // Update state text
+  const stateMap = {
+    instant: 'READY · 即兴模式',
+    deep: 'READY · 深研模式',
+    retell: 'READY · 复述模式'
+  };
+  document.getElementById('speak-state').textContent = stateMap[mode];
+  document.getElementById('speak-timer-card').style.display = 'block';
+}
+
+function speakRandom() {
+  const cat = document.getElementById('speak-category').value;
+  let pool = KNOWLEDGE_BASE;
+  if (cat !== 'all') pool = KNOWLEDGE_BASE.filter(k => k.cat === cat);
+  if (pool.length === 0) pool = KNOWLEDGE_BASE;
+  const item = pool[Math.floor(Math.random() * pool.length)];
+  speakCurrentTopic = item;
+
+  // Update state
+  const stateMap = {
+    instant: '🎯 立即开始',
+    deep: '📚 学习中',
+    retell: '🗣 复述中'
+  };
+  document.getElementById('speak-state').textContent = stateMap[speakMode];
+
+  // Display topic
+  const topicEl = document.getElementById('speak-topic');
+  topicEl.textContent = item.topic;
+  topicEl.classList.add('speak-topic-display');
+
+  // Show material only in deep/retell mode
+  if (speakMode === 'deep' || speakMode === 'retell') {
+    const matCard = document.getElementById('speak-material-card');
+    matCard.style.display = 'block';
+    let matHtml = '<ul class="speak-material-list">';
+    item.material.forEach((m, i) => matHtml += `<li><b>${i+1}.</b>${escHtml(m)}</li>`);
+    matHtml += '</ul>';
+    document.getElementById('speak-material').innerHTML = matHtml;
+    document.getElementById('speak-read-status').textContent = speakMode === 'deep' ? '📖 1分钟阅读后讲' : '🗣 看完后用自己的话讲';
+    // Reset timer for reading
+    speakReadDone = false;
+    speakTimerSeconds = speakMode === 'deep' ? 60 : 120;
+    updateSpeakTimerDisplay();
+  } else {
+    document.getElementById('speak-material-card').style.display = 'none';
+    speakTimerSeconds = 60;
+    updateSpeakTimerDisplay();
+  }
+
+  // Show timer and done button
+  document.getElementById('speak-timer-card').style.display = 'block';
+  document.getElementById('speak-done-btn').style.display = 'block';
+  document.getElementById('speak-save-btn').style.display = 'none';
+
+  // Auto-start timer in instant mode
+  if (speakMode === 'instant' && !speakTimerRunning) {
+    speakTimerToggle();
+  }
+
+  // Haptic feedback on mobile
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function speakTimerToggle() {
+  if (speakTimerRunning) {
+    clearInterval(speakTimerInterval);
+    speakTimerRunning = false;
+    document.getElementById('speak-timer-btn').innerHTML = '▶ 继续';
+  } else {
+    speakTimerRunning = true;
+    document.getElementById('speak-timer-btn').innerHTML = '⏸ 暂停';
+    speakTimerInterval = setInterval(() => {
+      speakTimerSeconds--;
+      updateSpeakTimerDisplay();
+      if (speakTimerSeconds <= 0) {
+        clearInterval(speakTimerInterval);
+        speakTimerRunning = false;
+        document.getElementById('speak-timer-btn').innerHTML = '▶ 开始';
+        // Encourage
+        if (speakMode === 'deep' && !speakReadDone) {
+          speakReadDone = true;
+          document.getElementById('speak-read-status').textContent = '⏰ 时间到，开始讲吧！';
+        }
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      }
+    }, 1000);
+  }
+}
+
+function speakTimerReset() {
+  clearInterval(speakTimerInterval);
+  speakTimerRunning = false;
+  const mode = speakMode || 'instant';
+  speakTimerSeconds = mode === 'retell' ? 120 : 60;
+  updateSpeakTimerDisplay();
+  const btn = document.getElementById('speak-timer-btn');
+  if (btn) btn.innerHTML = '▶ 开始';
+}
+
+function updateSpeakTimerDisplay() {
+  const m = Math.floor(speakTimerSeconds / 60);
+  const s = speakTimerSeconds % 60;
+  const t = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el = document.getElementById('speak-timer');
+  if (el) {
+    el.textContent = t;
+    el.style.color = speakTimerSeconds <= 10 ? 'var(--danger)' : speakTimerSeconds <= 30 ? 'var(--accent)' : '';
+  }
+}
+
+function speakMarkDone() {
+  // Stop timer
+  clearInterval(speakTimerInterval);
+  speakTimerRunning = false;
+  document.getElementById('speak-timer-btn').innerHTML = '✓ 已结束';
+  document.getElementById('speak-save-btn').style.display = 'block';
+  document.getElementById('speak-done-btn').style.display = 'none';
+  toast('🎤 太棒了！记得保存练习记录');
+  if (navigator.vibrate) navigator.vibrate(50);
+}
+
+function speakSave() {
+  if (!speakCurrentTopic) return;
+  const today = todayKey();
+  const logs = DB.get('speak_logs', {});
+  const todayLog = logs[today] || [];
+  const duration = speakMode === 'retell' ? 120 - speakTimerSeconds : 60 - speakTimerSeconds;
+  todayLog.push({
+    id: uid(),
+    topic: speakCurrentTopic.topic,
+    category: speakCurrentTopic.cat,
+    mode: speakMode,
+    duration: duration,
+    time: new Date().toISOString(),
+  });
+  logs[today] = todayLog;
+  DB.set('speak_logs', logs);
+  toast('已保存练习记录 ✓');
+  renderSpeak();
+}
+
+function getSpeakLogs() { return DB.get('speak_logs', {}); }
+
+function renderSpeak() {
+  const logs = getSpeakLogs();
+  const today = todayKey();
+  const todayLog = logs[today] || [];
+  const totalToday = todayLog.length;
+  let totalAll = 0;
+  Object.values(logs).forEach(arr => totalAll += arr.length);
+
+  document.getElementById('speak-stat-total').innerHTML = `${totalAll}<span class="stat-unit">次</span>`;
+  document.getElementById('speak-stat-today').innerHTML = `${totalToday}<span class="stat-unit">次</span>`;
+
+  // Recent history (last 10)
+  const allEntries = [];
+  Object.entries(logs).forEach(([date, arr]) => {
+    arr.forEach(e => allEntries.push({ ...e, date }));
+  });
+  allEntries.sort((a, b) => b.time.localeCompare(a.time));
+
+  const histEl = document.getElementById('speak-history');
+  if (allEntries.length === 0) {
+    histEl.innerHTML = '<div style="color:var(--text3);text-align:center;padding:20px 0">还没有练习记录</div>';
+    return;
+  }
+  const modeLabel = { instant: '即兴', deep: '深研', retell: '复述' };
+  const modeColor = { instant: 'rgba(245,158,11,.15)', deep: 'rgba(168,85,247,.15)', retell: 'rgba(59,130,246,.15)' };
+  histEl.innerHTML = allEntries.slice(0, 10).map(e => {
+    const d = new Date(e.date);
+    const ds = `${d.getMonth()+1}/${d.getDate()}`;
+    return `<div class="speak-history-item">
+      <div class="speak-history-info">
+        <div class="speak-history-topic">${escHtml(e.topic)}</div>
+        <div class="speak-history-meta">${ds} · ${e.duration}秒 · ${CATEGORY_LABELS[e.category] || e.category}</div>
+      </div>
+      <div class="speak-history-mode" style="background:${modeColor[e.mode] || 'rgba(34,197,94,.15)'};color:var(--primary)">${modeLabel[e.mode] || e.mode}</div>
+    </div>`;
+  }).join('');
+}
+
+const CATEGORY_LABELS = {
+  fitness: '健身减脂', nutrition: '营养科学', psychology: '心理学',
+  business: '商业思维', science: '科学常识', history: '历史人文',
+  life: '生活技能', philosophy: '哲学思辨'
+};
 
 /* ================================================================
    NOTIFICATION MODULE
